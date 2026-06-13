@@ -75,9 +75,37 @@ CookieAuthentication 1
 
 `install.ps1` writes this automatically.
 
-## Downstream: Patent Mapping
+## Combined Workflow with Patent Mapping
 
-The output CSV from this skill feeds directly into the [patent-mapping](https://github.com/jack-lee2022/patent-mapping) skill for tech-effect matrix generation and Blue Ocean analysis.
+This skill is the **search layer**. Once you have a scored patent list, hand the CSV off to the [patent-mapping](https://github.com/jack-lee2022/patent-mapping) skill for visual strategy analysis.
+
+| Phase | Skill | What happens |
+|-------|-------|--------------|
+| 1. Search & score | **pro-patent-search** | Multi-round keyword search, dedup, scoring → `<topic>_Patent_List.csv` + audit report |
+| 2. Enrich | patent-mapping | Batch-fetch missing abstracts and IPC codes from Google Patents |
+| 3. Map | patent-mapping | Generate 9 strategy charts (tech-effect matrix, evolution timeline, competitor radar, …) |
+
+```powershell
+# Step 1 — search (this skill)
+python patent_search_runner.py --topic "nebulizer" --outdir "D:\patent\run1"
+# Produces: D:\patent\run1\nebulizer_Patent_List.csv
+
+# Step 2+3 — hand off to patent-mapping skill
+python scripts/advanced/visualizer.py `
+    --csv "D:\patent\run1\nebulizer_Patent_List.csv" `
+    --outdir "D:\patent\run1\charts" `
+    --enrich
+```
+
+**Use pro-patent-search alone for:**
+- FTO analysis (Freedom to Operate) + claim charting
+- Invalidity search (prior art before a priority date)
+- Citation snowballing for a specific patent
+
+**Use both skills together for:**
+- Technology landscape report
+- Competitor entry / exit timing analysis
+- Blue Ocean (technology white space) identification
 
 ## Skill SOP
 
