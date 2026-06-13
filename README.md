@@ -124,3 +124,9 @@ python patent_search_runner.py --topic "vibrating mesh drug delivery" --outdir "
 ## Skill SOP
 
 See `SKILL.md` for the full professional workflow: Tor setup → one-command search → FTO analysis → invalidity search → patent landscape.
+
+---
+
+## Five-Skill Workflow Guide
+
+For the complete five-skill orchestration guide (Paths A / B / C), see **[WORKFLOW.md](https://github.com/jack-lee2022/patent-shared/blob/master/WORKFLOW.md)** in patent-shared.
