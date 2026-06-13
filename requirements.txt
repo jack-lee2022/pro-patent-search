@@ -32,3 +32,7 @@ img2pdf>=0.5.1           # TIFF → PDF (EPO OPS fullimage)
 
 # ── Data / Utilities ────────────────────────────────────────────────────────
 tqdm>=4.66.0             # progress bars
+
+# ── Optional visualization extras ──────────────────────────────────────────
+squarify>=0.4.3          # IPC treemap chart (optional)
+networkx>=3.0            # Citation network graph (optional)
