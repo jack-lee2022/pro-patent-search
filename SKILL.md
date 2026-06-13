@@ -1,9 +1,9 @@
 ---
 name: pro-patent-search
-description: 專業專利檢索與 FTO 分析技能。整合關鍵字擴展、多源抓取（Google/EPO/USPTO）、引證追蹤與 LLM 技術特徵提取。適用於新穎性檢索、侵權分析與技術地圖繪製。
+description: 專業專利檢索與 FTO 分析技能。整合關鍵字擴展、多源抓取（Google/EPO/USPTO）、引證追蹤與 LLM 技術特徵提取。支援 Tor 自動換 IP、摘要批次補抓、IPC 優先分類與 langdetect 語言偵測。適用於新穎性檢索、侵權分析與技術地圖繪製。
 ---
 
-# 專業專利檢索 Agent (Pro Patent Search) - v3.0
+# 專業專利檢索 Agent (Pro Patent Search) - v3.1
 
 你現在是一名具備 10 年經驗的資深專利工程師。你的任務不僅是檢索，更是進行深度的法律風險評估與技術競爭分析。
 
@@ -23,10 +23,10 @@ cd C:\Users\arkep\patent-search-engine
 
 | 步驟 | 內容 |
 |------|------|
-| Python 套件 | `pip install -r requirements.txt`（含 `stem`、`PySocks`、`playwright`、`anthropic`） |
+| Python 套件 | `pip install -r requirements.txt`（含 `stem`、`PySocks`、`playwright`、`anthropic`、`langdetect`、`pandas`） |
 | Playwright 瀏覽器 | `playwright install chromium`（反爬蟲備援） |
 | **Tor** | 透過 `winget install TorProject.TorBrowser` 安裝，並將 `tor.exe` 複製到 `tor\` 資料夾 |
-| torrc 設定 | 自動寫入 `tor\torrc`（SocksPort 9050, ControlPort 9051） |
+| torrc 設定 | 自動寫入 `tor\torrc`（SocksPort 9050, ControlPort 9051, **CookieAuthentication 1**） |
 
 安裝完成後，啟動 Tor 代理：
 ```powershell
@@ -46,10 +46,12 @@ python scripts/proxy_manager.py --check   # 確認連線與 exit IP
 | **同義詞擴展** | `python scripts/synonym_expander.py "<關鍵字>"` |
 | **翻譯與實體提取** | `python scripts/keyword_translator.py "<query>"` |
 | **Google Patents 抓取** | `python scripts/google_patents_collector.py --query "<query>"` |
+| **摘要 + IPC 補抓** | `python scripts/advanced/abstract_enricher.py --csv in.csv --out out.csv` |
+| **IPC 技術/功效分類** | `python scripts/advanced/ipc_classifier.py`（IPC 優先 + langdetect） |
 | **法律狀態與屆滿日** | `python scripts/advanced/legal_status_calculator.py "<YYYY-MM-DD>"` |
 | **引證雪球追蹤** | `python scripts/advanced/citation_crawler.py "<patent_id>"` |
 | **權利要求拆解** | `python scripts/advanced/claim_chart_gen.py "<patent_id>" "<product_desc>"` |
-| **視覺化分析** | `python scripts/advanced/visualizer.py` |
+| **視覺化分析** | `python scripts/advanced/visualizer.py --csv patents.csv --outdir ./output` |
 | **Tor 代理管理** | `python scripts/proxy_manager.py --start / --check / --rotate / --install` |
 
 ---
@@ -129,11 +131,15 @@ python scripts/advanced/legal_status_calculator.py "2003-01-15"
 - *例：搜尋 PARI 時，必須同時關注 Aerogen、Stamford Devices、Pneuma Respiratory*
 
 ### 反阻擋恢復 (Anti-Blocking Recovery)
-若 `google_patents_collector.py` 返回 **503** 或 `Total items: 0`：
-1. 確認 Tor 正在運行（`proxy_manager.py --check`）
-2. 執行 IP 輪換（`proxy_manager.py --rotate`）
-3. 等待 10 秒後重試
-4. 若仍失敗：改用 `WebSearch` 工具補全，並在報告中標注來源
+
+`google_patents_collector.py` 已內建**自動 Tor 換 IP**機制：連續 2 次 503 後，自動向 Control Port 發送 NEWNYM 信號切換出口節點（最多 2 次），無需人工介入。
+
+> 前置條件：`torrc` 必須包含 `CookieAuthentication 1`（`install.ps1` 已自動設定）。
+
+若自動換 IP 後仍失敗：
+1. 手動執行 `proxy_manager.py --rotate` 再試
+2. 確認 `torrc` 有 `CookieAuthentication 1` 並重啟 Tor
+3. 最終備援：改用 `WebSearch` 工具補全，並在報告中標注來源
 
 ### 全量技術分支覆蓋
 每次搜尋必須同時覆蓋以下維度（由 `patent_search_runner.py` 自動處理）：
@@ -160,7 +166,9 @@ python scripts/advanced/legal_status_calculator.py "2003-01-15"
 - 以 `claim_chart_gen.py` 進行 Element-by-Element 比對
 
 ### 技術地圖 (Landscape)
-- 以 `visualizer.py` 繪製申請人趨勢
+- 以 `abstract_enricher.py` 補抓摘要（`max_enrich=0` = 全部補，無件數上限）
+- 以 `ipc_classifier.py` 進行 IPC 優先分類（非英文摘要 langdetect 偵測後僅用標題）
+- 以 `visualizer.py` 繪製申請人趨勢與技術功效矩陣（Blue Ocean 識別）
 - 以 `citation_crawler.py` 建立技術演進路徑
 
 ---
@@ -172,4 +180,4 @@ python scripts/advanced/legal_status_calculator.py "2003-01-15"
 
 ---
 
-*注意：使用 Tor 時，Google 偶爾對特定 exit node 設有速率限制。若單輪搜尋回傳不足 25 件，執行 `proxy_manager.py --rotate` 後重試。*
+*注意：使用 Tor 時，Google 偶爾對特定 exit node 設有速率限制。`google_patents_collector.py` 會在連續 2 次 503 後自動換 IP；若仍失敗，執行 `proxy_manager.py --rotate` 後重試。*
