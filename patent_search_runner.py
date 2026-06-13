@@ -604,6 +604,32 @@ def render_patent_list(data: Dict) -> str:
     return "\n".join(lines)
 
 
+def render_csv(data: Dict) -> str:
+    """Return CSV string for patent-mapping downstream consumption."""
+    import io
+    import csv as _csv
+
+    selected = data["selected"]
+    fields = ["publication_number", "title", "assignee", "year", "country", "ipc", "abstract"]
+    buf = io.StringIO()
+    w = _csv.DictWriter(buf, fieldnames=fields, lineterminator="\n")
+    w.writeheader()
+    for item in selected:
+        p = item.get("patent", {})
+        pn = p.get("publication_number", "")
+        pub_date = str(p.get("publication_date", "") or "")
+        w.writerow({
+            "publication_number": pn,
+            "title":    p.get("title", ""),
+            "assignee": p.get("assignee", ""),
+            "year":     pub_date[:4] if len(pub_date) >= 4 else "",
+            "country":  pn[:2] if len(pn) >= 2 else "",
+            "ipc":      p.get("ipc", "") or "",
+            "abstract": p.get("abstract", "") or "",
+        })
+    return buf.getvalue()
+
+
 # ── CLI ────────────────────────────────────────────────────────────────────────
 
 def main():
@@ -648,13 +674,16 @@ def main():
 
     process_path = outdir / f"{slug}_Search_Process_Report.md"
     list_path    = outdir / f"{slug}_Patent_List.md"
+    csv_path     = outdir / f"{slug}_Patent_List.csv"
 
     process_path.write_text(render_process_report(data), encoding="utf-8")
     list_path.write_text(render_patent_list(data), encoding="utf-8")
+    csv_path.write_text(render_csv(data), encoding="utf-8-sig")
 
     print(f"\n[DONE]")
     print(f"  Process report : {process_path}")
     print(f"  Patent list    : {list_path}")
+    print(f"  Patent CSV     : {csv_path}  ← patent-mapping input")
     print(f"  Total unique   : {data['total_raw']}")
     print(f"  Selected       : {data['total_selected']}")
     print(f"  Eliminated     : {data['total_eliminated']}")
