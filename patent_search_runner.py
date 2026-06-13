@@ -10,9 +10,9 @@ Runs multi-round Google Patents searches for any technology topic, then:
        <outdir>/<slug>_Patent_List.md             ← clean final list (50 patents)
 
 Usage:
-    python scripts/patent_search_runner.py --topic "nebulizer" --outdir "D:\\patent\\run1"
-    python scripts/patent_search_runner.py --topic "blood pressure monitor" --max 60 --outdir "D:\\patent\\bp"
-    python scripts/patent_search_runner.py --topic "nebulizer" --queries queries.json --outdir "D:\\patent\\run2"
+    python patent_search_runner.py --topic "nebulizer" --outdir "D:\\patent\\run1"
+    python patent_search_runner.py --topic "blood pressure monitor" --max 60 --outdir "D:\\patent\\bp"
+    python patent_search_runner.py --topic "nebulizer" --queries queries.json --outdir "D:\\patent\\run2"
 
 Query override format (queries.json):
     [
@@ -31,7 +31,7 @@ from datetime import date
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, str(Path(__file__).parent / "scripts"))
 
 # ── Imports (graceful fallback if synonym_expander unavailable) ────────────────
 try:

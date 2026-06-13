@@ -42,7 +42,7 @@ python scripts/proxy_manager.py --check   # 確認連線與 exit IP
 
 | 功能 | 執行命令 |
 |------|---------|
-| **一鍵搜尋 + 過程報告** | `python scripts/patent_search_runner.py --topic "<主題>" --outdir "<輸出目錄>"` |
+| **一鍵搜尋 + 過程報告** | `python patent_search_runner.py --topic "<主題>" --outdir "<輸出目錄>"` |
 | **同義詞擴展** | `python scripts/synonym_expander.py "<關鍵字>"` |
 | **翻譯與實體提取** | `python scripts/keyword_translator.py "<query>"` |
 | **Google Patents 抓取** | `python scripts/google_patents_collector.py --query "<query>"` |
@@ -68,7 +68,7 @@ python scripts/proxy_manager.py --check   # 確認 exit IP 顯示正常
 ### Step 2：執行一鍵搜尋（自動生成過程報告）
 
 ```powershell
-python scripts/patent_search_runner.py \
+python patent_search_runner.py \
   --topic "nebulizer" \
   --outdir "D:\patent\run1"
 ```
@@ -89,13 +89,13 @@ python scripts/patent_search_runner.py \
 **進階參數：**
 ```powershell
 # 自訂查詢輪數 / 最終件數
-python scripts/patent_search_runner.py --topic "blood pressure monitor" --max 50 --final 60 --outdir "D:\patent\bp"
+python patent_search_runner.py --topic "blood pressure monitor" --max 50 --final 60 --outdir "D:\patent\bp"
 
 # 手動指定查詢（覆寫自動生成）
-python scripts/patent_search_runner.py --topic "nebulizer" --queries my_queries.json --outdir "D:\patent\run2"
+python patent_search_runner.py --topic "nebulizer" --queries my_queries.json --outdir "D:\patent\run2"
 
 # 停用 Tor（測試用）
-python scripts/patent_search_runner.py --topic "nebulizer" --no-tor --outdir "D:\patent\test"
+python patent_search_runner.py --topic "nebulizer" --no-tor --outdir "D:\patent\test"
 ```
 
 **`my_queries.json` 格式：**

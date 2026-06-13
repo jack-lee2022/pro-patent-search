@@ -37,16 +37,16 @@ python scripts/proxy_manager.py --start
 python scripts/proxy_manager.py --check   # verify exit IP
 
 # One-command search + audit report
-python scripts/patent_search_runner.py --topic "nebulizer" --outdir "D:\patent\run1"
+python patent_search_runner.py --topic "nebulizer" --outdir "D:\patent\run1"
 ```
 
 **Advanced options:**
 ```powershell
 # Custom round count and final list size
-python scripts/patent_search_runner.py --topic "blood pressure monitor" --max 50 --final 60 --outdir "D:\patent\bp"
+python patent_search_runner.py --topic "blood pressure monitor" --max 50 --final 60 --outdir "D:\patent\bp"
 
 # Disable Tor (testing)
-python scripts/patent_search_runner.py --topic "nebulizer" --no-tor --outdir "D:\patent\test"
+python patent_search_runner.py --topic "nebulizer" --no-tor --outdir "D:\patent\test"
 ```
 
 ## Scripts

@@ -11,6 +11,17 @@ Write-Host "  pro-patent-search  Installation Script"              -ForegroundCo
 Write-Host "======================================================" -ForegroundColor Cyan
 Write-Host ""
 
+# ─── 0. Git submodule init ────────────────────────────────────────────────
+Write-Host "[0/4] Initializing git submodules (scripts/ → patent-shared)..." -ForegroundColor Yellow
+git -C $ScriptDir submodule update --init --recursive
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "[ERROR] git submodule update failed. Make sure you cloned with --recurse-submodules." -ForegroundColor Red
+    Write-Host "  Run: git submodule update --init --recursive" -ForegroundColor DarkYellow
+} else {
+    Write-Host "  OK — scripts/ submodule ready." -ForegroundColor Green
+}
+Write-Host ""
+
 # ─── 1. Python packages ────────────────────────────────────────────────────
 Write-Host "[1/4] Installing Python packages..." -ForegroundColor Yellow
 pip install -r "$ScriptDir\requirements.txt"
