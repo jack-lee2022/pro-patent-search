@@ -75,37 +75,51 @@ CookieAuthentication 1
 
 `install.ps1` writes this automatically.
 
-## Combined Workflow with Patent Mapping
+## Three-Skill Pipeline
 
-This skill is the **search layer**. Once you have a scored patent list, hand the CSV off to the [patent-mapping](https://github.com/jack-lee2022/patent-mapping) skill for visual strategy analysis.
+This skill is the **search layer** — the starting point of the full IP strategy workflow.
 
-| Phase | Skill | What happens |
-|-------|-------|--------------|
-| 1. Search & score | **pro-patent-search** | Multi-round keyword search, dedup, scoring → `<topic>_Patent_List.csv` + audit report |
-| 2. Enrich | patent-mapping | Batch-fetch missing abstracts and IPC codes from Google Patents |
-| 3. Map | patent-mapping | Generate 9 strategy charts (tech-effect matrix, evolution timeline, competitor radar, …) |
+```
+[1] pro-patent-search (this skill)  →  [2] patent-mapping  →  [3] patent-deployment
+   Search & score patents                9 strategy charts       Filing strategy
+   Patent_List.csv                       Blue Ocean, radar       Deployment matrix
+                                                                  ↓
+                                         ←──────────────────── Second-pass search
+                                                     (targeted queries after strategy selected)
+```
 
+| Phase | Skill | What it produces |
+|-------|-------|-----------------|
+| 1. Search & score | **pro-patent-search** | `*_Patent_List.csv` + audit report |
+| 2. Visualize & analyze | [patent-mapping](https://github.com/jack-lee2022/patent-mapping) | 9 strategy charts |
+| 3. Strategize & deploy | [patent-deployment](https://github.com/jack-lee2022/patent-deployment) | Filing strategy + deployment matrix |
+
+**Full pipeline example:**
 ```powershell
 # Step 1 — search (this skill)
 python patent_search_runner.py --topic "nebulizer" --outdir "D:\patent\run1"
 # Produces: D:\patent\run1\nebulizer_Patent_List.csv
 
-# Step 2+3 — hand off to patent-mapping skill
+# Step 2 — visualize (patent-mapping skill)
 python scripts/advanced/visualizer.py `
     --csv "D:\patent\run1\nebulizer_Patent_List.csv" `
     --outdir "D:\patent\run1\charts" `
     --enrich
+# Produces: 9 chart PNGs including Blue Ocean cells and competitor radar
+
+# Step 3 — strategy (patent-deployment skill)
+# Agent reads chart outputs and recommends: e.g. Fence + Choke Point
+# → triggers second-pass targeted search back to this skill:
+python patent_search_runner.py --topic "vibrating mesh drug delivery" --outdir "D:\patent\run2"
 ```
 
-**Use pro-patent-search alone for:**
+**Use this skill alone for:**
 - FTO analysis (Freedom to Operate) + claim charting
 - Invalidity search (prior art before a priority date)
 - Citation snowballing for a specific patent
 
-**Use both skills together for:**
-- Technology landscape report
-- Competitor entry / exit timing analysis
-- Blue Ocean (technology white space) identification
+**Use all three skills together for:**
+- Full IP strategy: landscape → Blue Ocean identification → filing strategy decision
 
 ## Skill SOP
 
