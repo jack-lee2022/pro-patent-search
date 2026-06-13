@@ -1,6 +1,6 @@
 ---
 name: pro-patent-search
-description: 專業專利檢索與 FTO 分析技能。整合關鍵字擴展、多源抓取（Google/EPO/USPTO）、引證追蹤與 LLM 技術特徵提取。支援 Tor 自動換 IP、摘要批次補抓、IPC 優先分類與 langdetect 語言偵測。適用於新穎性檢索、侵權分析與技術地圖繪製。
+description: 專業專利檢索與 FTO 分析技能。整合關鍵字擴展、多源抓取（Google/EPO/USPTO）、引證追蹤與 LLM 技術特徵提取。支援 Tor 自動換 IP、摘要批次補抓、IPC 優先分類與 langdetect 語言偵測。適用於新穎性檢索、侵權分析。輸出 CSV 可直接交由 patent-mapping 技能進行視覺化分析。
 ---
 
 # 專業專利檢索 Agent (Pro Patent Search) - v3.1
@@ -166,10 +166,7 @@ python scripts/advanced/legal_status_calculator.py "2003-01-15"
 - 以 `claim_chart_gen.py` 進行 Element-by-Element 比對
 
 ### 技術地圖 (Landscape)
-- 以 `abstract_enricher.py` 補抓摘要（`max_enrich=0` = 全部補，無件數上限）
-- 以 `ipc_classifier.py` 進行 IPC 優先分類（非英文摘要 langdetect 偵測後僅用標題）
-- 以 `visualizer.py` 繪製申請人趨勢與技術功效矩陣（Blue Ocean 識別）
-- 以 `citation_crawler.py` 建立技術演進路徑
+搜尋結束後，將 `*_Patent_List.csv` 交由 [patent-mapping](https://github.com/jack-lee2022/patent-mapping) 技能處理。patent-mapping 負責摘要補抓、IPC 分類、9 張策略圖表生成（技術功效矩陣、Blue Ocean 識別、競爭者雷達圖、技術演進時間軸等），詳細操作請參照該技能文件。
 
 ---
 
